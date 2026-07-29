@@ -82,3 +82,11 @@ export const loginUser = async ({ identifier, password }) => {
     },
   };
 };
+
+export const getCurrentUser = async (user) => {
+  return {
+    id: user._id,
+    username: user.username,
+    email: user.email,
+  };
+};

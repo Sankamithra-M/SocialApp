@@ -1,6 +1,7 @@
-import { registerUser, loginUser } from "./auth.service.js";
+import { registerUser, loginUser , getCurrentUser } from "./auth.service.js";
 import AppError from "../../errors/AppError.js";
 import asyncHandler from "../../middleware/asyncHandler.js";
+
 
 export const register = asyncHandler(async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -43,3 +44,12 @@ export const login = asyncHandler(async (req, res, next) => {
       data: result,
     });
   }) 
+
+  export const getMe = asyncHandler(async (req, res) => {
+  const user = await getCurrentUser(req.user);
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
