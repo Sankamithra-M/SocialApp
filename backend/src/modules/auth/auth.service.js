@@ -30,6 +30,7 @@ throw new AppError("Email already exists", 409);    }
     username,
     email,
     password: hashedPassword,
+    displayName: username, // Set displayName to username by default
   });
 
   // Return only required fields
