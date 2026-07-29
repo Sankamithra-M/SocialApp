@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 8,
+
       select: false,
     },
 
@@ -41,19 +42,31 @@ const userSchema = new mongoose.Schema(
     },
 
     profileImage: {
-      type: String,
-      default: "",
+      url: {
+        type: String,
+        default: "",
+      },
+      publicId: {
+        type: String,
+        default: "",
+      },
+    },
+    followersCount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
 
+    followingCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     isPrivate: {
       type: Boolean,
       default: false,
     },
 
-    creatorMode: {
-      type: Boolean,
-      default: false,
-    },
 
     isEmailVerified: {
       type: Boolean,
