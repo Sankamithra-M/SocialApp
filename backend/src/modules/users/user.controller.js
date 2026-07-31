@@ -2,6 +2,7 @@ import asyncHandler from "../../middleware/asyncHandler.js";
 import {
   getUserProfile,
   updateUserProfile,
+  updateProfileImageService,
 } from "./user.service.js";
 
 export const getProfile = asyncHandler(async (req, res) => {
@@ -32,3 +33,18 @@ export const updateProfile = asyncHandler(async (req, res) => {
     data: profile,
   });
 });
+
+export const updateProfileImage = asyncHandler(
+  async (req, res) => {
+    const result = await updateProfileImageService(
+      req.user._id,
+      req.file
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Profile image updated successfully",
+      data: result,
+    });
+  }
+);

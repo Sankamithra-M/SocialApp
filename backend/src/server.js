@@ -1,13 +1,13 @@
 // do basic mern setup with express, mongoose, dotenv, cors, nodemon, and body-parser
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./db.js";
 
-dotenv.config();
+
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
 connectDB();
