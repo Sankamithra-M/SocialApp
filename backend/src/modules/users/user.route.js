@@ -3,6 +3,7 @@ import {
   getProfile,
   updateProfile,
   updateProfileImage,
+  changePassword,
 } from "./user.controller.js";
 
 import { protect } from "../../middleware/auth.middleware.js";
@@ -21,4 +22,9 @@ router.patch(
   updateProfileImage
 );
 
+router.patch(
+  "/change-password",
+  protect,
+  changePassword
+);
 export default router;

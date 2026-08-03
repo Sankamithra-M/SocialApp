@@ -2,6 +2,7 @@ import User from "./user.model.js";
 import AppError from "../../errors/AppError.js";
 import cloudinary from "../../config/cloudinary.js";
 import fs from "fs";
+import bcrypt from "bcryptjs";
 console.log("Cloudinary config loaded");
 export const getUserProfile = async (username) => {
   const user = await User.findOne({ username }).lean();
@@ -99,4 +100,50 @@ export const updateProfileImageService = async (
   return {
     profileImage: user.profileImage,
   };
+};
+
+export const changePasswordService = async (
+  userId,
+  currentPassword,
+  newPassword
+) => {
+  // Include password because it is select: false
+  const user = await User.findById(userId).select("+password");
+   console.log(user)
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  // Verify current password
+  const isPasswordCorrect = await bcrypt.compare(
+    currentPassword,
+    user.password
+  );
+
+  if (!isPasswordCorrect) {
+    throw new AppError("Current password is incorrect", 400);
+  }
+
+  // Prevent using the same password
+  const isSamePassword = await bcrypt.compare(
+    newPassword,
+    user.password
+  );
+
+  if (isSamePassword) {
+    throw new AppError(
+      "New password must be different from the current password",
+      400
+    );
+  }
+
+  // Hash new password
+  const hashedPassword = await bcrypt.hash(
+    newPassword,
+    12
+  );
+
+  user.password = hashedPassword;
+
+  await user.save();
 };
