@@ -3,6 +3,7 @@ import {
   getUserProfile,
   updateUserProfile,
   updateProfileImageService,
+  changePasswordService,
 } from "./user.service.js";
 
 export const getProfile = asyncHandler(async (req, res) => {
@@ -45,6 +46,31 @@ export const updateProfileImage = asyncHandler(
       success: true,
       message: "Profile image updated successfully",
       data: result,
+    });
+  }
+);
+
+export const changePassword = asyncHandler(
+  async (req, res) => {
+    const { currentPassword, newPassword } =
+      req.body;
+
+    if (!currentPassword || !newPassword) {
+      throw new AppError(
+        "Current password and new password are required",
+        400
+      );
+    }
+
+    await changePasswordService(
+      req.user._id,
+      currentPassword,
+      newPassword
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
     });
   }
 );
