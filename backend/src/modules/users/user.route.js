@@ -6,6 +6,11 @@ import {
   changePassword,
 } from "./user.controller.js";
 
+import {
+  followUser,   unfollowUser,
+
+} from "../follows/follow.controller.js";
+
 import { protect } from "../../middleware/auth.middleware.js";
 import upload from "../../middleware/upload.middleware.js";
 
@@ -28,3 +33,15 @@ router.patch(
   changePassword
 );
 export default router;
+
+router.post(
+  "/:username/follow",
+  protect,
+  followUser
+);
+
+router.delete(
+  "/:username/unfollow",
+  protect,
+  unfollowUser
+);
