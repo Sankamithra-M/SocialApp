@@ -7,7 +7,9 @@ import {
 } from "./user.controller.js";
 
 import {
-  followUser,   unfollowUser,
+  followUser,   unfollowUser, getFollowers, getFollowing ,
+      checkFollowStatus
+
 
 } from "../follows/follow.controller.js";
 
@@ -44,4 +46,19 @@ router.delete(
   "/:username/unfollow",
   protect,
   unfollowUser
+);
+
+router.get(
+  "/:username/followers",
+  getFollowers
+);
+
+router.get(
+  "/:username/following",
+  getFollowing
+);
+router.get(
+    "/:username/follow-status",
+    protect,
+    checkFollowStatus
 );
