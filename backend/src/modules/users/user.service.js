@@ -1,9 +1,13 @@
 import User from "./user.model.js";
 import AppError from "../../errors/AppError.js";
-import cloudinary from "../../config/cloudinary.js";
-import fs from "fs";
 import bcrypt from "bcryptjs";
+
+import {
+  uploadImagesToCloudinary,
+  deleteImagesFromCloudinary,
+} from "../../utils/cloudinaryUpload.js";
 console.log("Cloudinary config loaded");
+
 export const getUserProfile = async (username) => {
   const user = await User.findOne({ username }).lean();
 
@@ -60,6 +64,48 @@ export const updateUserProfile = async (
 };
 
 
+// export const updateProfileImageService = async (
+//   userId,
+//   file
+// ) => {
+//   const user = await User.findById(userId);
+
+//   if (!user) {
+//     throw new AppError("User not found", 404);
+//   }
+
+//   if (!file) {
+//     throw new AppError(
+//       "Profile image is required",
+//       400
+//     );
+//   }
+
+//   const uploadResult =
+//     await cloudinary.uploader.upload(file.path, {
+//       folder: "social-app/profile-images",
+//     });
+
+//   if (user.profileImage.publicId) {
+//     await cloudinary.uploader.destroy(
+//       user.profileImage.publicId
+//     );
+//   }
+
+//   fs.unlinkSync(file.path);
+
+//   user.profileImage = {
+//     url: uploadResult.secure_url,
+//     publicId: uploadResult.public_id,
+//   };
+
+//   await user.save();
+
+//   return {
+//     profileImage: user.profileImage,
+//   };
+// };
+
 export const updateProfileImageService = async (
   userId,
   file
@@ -77,23 +123,24 @@ export const updateProfileImageService = async (
     );
   }
 
-  const uploadResult =
-    await cloudinary.uploader.upload(file.path, {
-      folder: "social-app/profile-images",
-    });
-
-  if (user.profileImage.publicId) {
-    await cloudinary.uploader.destroy(
-      user.profileImage.publicId
+  // Upload the new profile image
+  const [uploadedImage] =
+    await uploadImagesToCloudinary(
+      [file],
+      "social-app/profile-images"
     );
+
+  // Delete old profile image from Cloudinary
+  if (user.profileImage?.publicId) {
+    await deleteImagesFromCloudinary([
+      {
+        publicId: user.profileImage.publicId,
+      },
+    ]);
   }
 
-  fs.unlinkSync(file.path);
-
-  user.profileImage = {
-    url: uploadResult.secure_url,
-    publicId: uploadResult.public_id,
-  };
+  // Update user document
+  user.profileImage = uploadedImage;
 
   await user.save();
 

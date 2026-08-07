@@ -20,7 +20,7 @@ app.use(express.json());
 import errorHandler from "./middleware/error.middleware.js";
 import authRoutes from "./modules/auth/auth.route.js";
 import userRoutes from "./modules/users/user.route.js";
-
+import postRoutes from "./modules/posts/post.route.js";
 
 
 
@@ -32,7 +32,7 @@ import userRoutes from "./modules/users/user.route.js";
 //routes_using
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-
+app.use("/api/posts", postRoutes);
 
 
 
