@@ -2,6 +2,8 @@ import express from "express";
 
 import { createPost , getUserPosts , deletePost } from "./post.controller.js";
 
+import {likePost} from "../likes/like.controller.js";
+
 import {protect} from "../../middleware/auth.middleware.js";
 
 import upload from "../../middleware/upload.middleware.js";
@@ -26,6 +28,13 @@ router.delete(
   "/:postId",
   protect,
   deletePost
+);
+
+
+router.post(
+  "/:postId/like",
+  protect,
+  likePost
 );
 
 export default router;
