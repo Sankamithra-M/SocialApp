@@ -28,7 +28,6 @@ import postRoutes from "./modules/posts/post.route.js";
 
 
 
-
 //routes_using
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
