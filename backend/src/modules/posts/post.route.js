@@ -1,6 +1,6 @@
 import express from "express";
 
-import { createPost } from "./post.controller.js";
+import { createPost , getUserPosts , deletePost } from "./post.controller.js";
 
 import {protect} from "../../middleware/auth.middleware.js";
 
@@ -15,4 +15,18 @@ router.post(
   createPost
 );
 
+router.get(
+  "/user/:username/posts",
+  protect,
+  getUserPosts
+);
+
+
+router.delete(
+  "/:postId",
+  protect,
+  deletePost
+);
+
 export default router;
+
