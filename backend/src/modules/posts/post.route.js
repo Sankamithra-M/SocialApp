@@ -4,6 +4,8 @@ import { createPost , getUserPosts , deletePost } from "./post.controller.js";
 
 import {likePost} from "../likes/like.controller.js";
 
+import { createComment , getComments , deleteComment} from "../comments/comment.controller.js";
+
 import {protect} from "../../middleware/auth.middleware.js";
 
 import upload from "../../middleware/upload.middleware.js";
@@ -37,5 +39,23 @@ router.post(
   likePost
 );
 
+
+router.post(
+  "/:postId/comments",
+  protect,
+  createComment
+);
+
+router.get(
+  "/:postId/comments",
+  protect,
+  getComments
+);
+
+router.delete(
+  "/comments/:commentId",
+  protect,
+  deleteComment
+);
 export default router;
 
