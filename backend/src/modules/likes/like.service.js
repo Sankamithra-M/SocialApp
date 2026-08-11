@@ -5,6 +5,10 @@ import AppError from "../../errors/AppError.js";
 import Like from "./like.model.js";
 import Post from "../posts/post.model.js";
 
+import {
+  createNotificationService,
+} from "../notification/notification.service.js";
+
 export const toggleLikeService = async (
   userId,
   postId
@@ -13,21 +17,28 @@ export const toggleLikeService = async (
   const post = await Post.findById(postId);
 
   if (!post) {
-    throw new AppError("Post not found", 404);
+    throw new AppError(
+      "Post not found",
+      404
+    );
   }
 
-  // Check whether the user already liked this post
+  // Check whether the user already liked the post
   const existingLike = await Like.findOne({
     user: userId,
     post: postId,
   });
 
-  const session = await mongoose.startSession();
+  const session =
+    await mongoose.startSession();
 
   try {
     session.startTransaction();
 
-    // Already liked → Unlike
+    // =================================
+    // UNLIKE
+    // =================================
+
     if (existingLike) {
       await Like.deleteOne(
         {
@@ -55,7 +66,10 @@ export const toggleLikeService = async (
       };
     }
 
-    // Not liked → Like
+    // =================================
+    // LIKE
+    // =================================
+
     await Like.create(
       [
         {
@@ -75,6 +89,21 @@ export const toggleLikeService = async (
       },
       { session }
     );
+
+    // Don't notify the user if
+    // they liked their own post
+    if (
+      post.author.toString() !==
+      userId.toString()
+    ) {
+      await createNotificationService({
+        recipient: post.author,
+        sender: userId,
+        type: "LIKE",
+        post: postId,
+        session,
+      });
+    }
 
     await session.commitTransaction();
 

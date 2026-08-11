@@ -2,6 +2,9 @@ import Follow from "./follow.model.js";
 import User from "../users/user.model.js";
 import AppError from "../../errors/AppError.js";
 import mongoose from "mongoose";
+import {
+  createNotificationService,
+} from "../notification/notification.service.js";
 
 
 export const followUserService = async (
@@ -77,6 +80,13 @@ export const followUserService = async (
         session,
       }
     );
+    await createNotificationService({
+      recipient: targetUser._id,
+      sender: currentUserId,
+      type: "FOLLOW",
+      session,
+    });
+
 
     await session.commitTransaction();
 
