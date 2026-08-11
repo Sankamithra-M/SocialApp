@@ -22,7 +22,7 @@ import authRoutes from "./modules/auth/auth.route.js";
 import userRoutes from "./modules/users/user.route.js";
 import postRoutes from "./modules/posts/post.route.js";
 import feedRoutes from "./modules/feed/feed.route.js";
-
+import notificationRoutes from "./modules/notification/notification.route.js";
 
 
 
@@ -34,7 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/feed",feedRoutes);
-
+app.use("/api/notifications",notificationRoutes);
 
 
 
