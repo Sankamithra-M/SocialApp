@@ -5,12 +5,17 @@ import AppError from "../../errors/AppError.js";
 import Comment from "./comment.model.js";
 import Post from "../posts/post.model.js";
 
+import {
+  createNotificationService,
+} from "../notification/notification.service.js";
+
+
 export const createCommentService = async (
   userId,
   postId,
   text
 ) => {
-  // 1. Validate text
+  // Validate comment text
   if (!text?.trim()) {
     throw new AppError(
       "Comment cannot be empty",
@@ -18,7 +23,7 @@ export const createCommentService = async (
     );
   }
 
-  // 2. Check whether post exists
+  // Check whether post exists
   const post = await Post.findById(postId);
 
   if (!post) {
@@ -28,24 +33,26 @@ export const createCommentService = async (
     );
   }
 
-  const session = await mongoose.startSession();
+  const session =
+    await mongoose.startSession();
 
   try {
     session.startTransaction();
 
-    // 3. Create comment
-    const [comment] = await Comment.create(
-      [
-        {
-          user: userId,
-          post: postId,
-          text: text.trim(),
-        },
-      ],
-      { session }
-    );
+    // Create comment
+    const [comment] =
+      await Comment.create(
+        [
+          {
+            user: userId,
+            post: postId,
+            text: text.trim(),
+          },
+        ],
+        { session }
+      );
 
-    // 4. Increase comment count
+    // Increase comment count
     await Post.findByIdAndUpdate(
       postId,
       {
@@ -56,18 +63,36 @@ export const createCommentService = async (
       { session }
     );
 
-    // 5. Commit
+    // Don't notify yourself
+    if (
+      post.author.toString() !==
+      userId.toString()
+    ) {
+      await createNotificationService({
+        recipient: post.author,
+        sender: userId,
+        type: "COMMENT",
+        post: postId,
+        comment: comment._id,
+        session,
+      });
+    }
+
     await session.commitTransaction();
 
     return comment;
+
   } catch (error) {
     await session.abortTransaction();
 
     throw error;
+
   } finally {
     await session.endSession();
   }
 };
+
+  
 
 export const getCommentsService = async (postId) => {
   const post = await Post.findById(postId);
