@@ -1,7 +1,12 @@
 import bcrypt from "bcryptjs";
 import User from "../users/user.model.js";
 import AppError from "../../errors/AppError.js";
- import { generateAccessToken } from "../../utils/jwt.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken
+} from "../../utils/jwt.js";
+
 
 export const registerUser = async ({
   username,
@@ -46,8 +51,11 @@ throw new AppError("Email already exists", 409);    }
 
 // Existing registerUser() stays here...
 
-export const loginUser = async ({ identifier, password }) => {
-  // Find user by email OR username and include password
+export const loginUser = async ({
+  identifier,
+  password,
+}) => {
+
   const user = await User.findOne({
     $or: [
       { email: identifier },
@@ -55,33 +63,52 @@ export const loginUser = async ({ identifier, password }) => {
     ],
   }).select("+password");
 
-  // Don't reveal whether the user exists
+
   if (!user) {
-    throw new AppError("Invalid credentials", 401);
+    throw new AppError(
+      "Invalid credentials",
+      401
+    );
   }
 
-  // Compare entered password with hashed password
-  const isPasswordValid = await bcrypt.compare(
-    password,
-    user.password
-  );
+
+  const isPasswordValid =
+    await bcrypt.compare(
+      password,
+      user.password
+    );
+
 
   if (!isPasswordValid) {
-    throw new AppError("Invalid credentials", 401);
+    throw new AppError(
+      "Invalid credentials",
+      401
+    );
   }
 
-  // Generate JWT
-  const token = generateAccessToken(user._id);
 
-  // Return only safe data
+  const accessToken =
+    generateAccessToken(user._id);
+
+
+  const refreshToken =
+    generateRefreshToken(user._id);
+
+
   return {
-    token,
+
+    accessToken,
+
+    refreshToken,
+
     user: {
       id: user._id,
       username: user.username,
       email: user.email,
     },
+
   };
+
 };
 
 export const getCurrentUser = async (user) => {
@@ -90,4 +117,54 @@ export const getCurrentUser = async (user) => {
     username: user.username,
     email: user.email,
   };
+};
+
+
+export const refreshAccessToken = async (
+  refreshToken
+) => {
+
+  if (!refreshToken) {
+    throw new AppError(
+      "Refresh token required",
+      401
+    );
+  }
+
+  let decoded;
+
+  try {
+
+    decoded =
+      verifyRefreshToken(
+        refreshToken
+      );
+
+  } catch (error) {
+
+    throw new AppError(
+      "Invalid or expired refresh token",
+      401
+    );
+
+  }
+
+  const user =
+    await User.findById(
+      decoded.userId
+    );
+
+  if (!user) {
+    throw new AppError(
+      "User not found",
+      401
+    );
+  }
+
+  const accessToken =
+    generateAccessToken(
+      user._id
+    );
+
+  return accessToken;
 };
