@@ -14,7 +14,7 @@ import postRoutes from "./modules/posts/post.route.js";
 import feedRoutes from "./modules/feed/feed.route.js";
 import notificationRoutes from "./modules/notification/notification.route.js";
 import chatRoutes from "./modules/chat/chat.route.js";
-
+import cookieParser from "cookie-parser";
 import { initializeSocket } from "./socket/socket.js";
 
 
@@ -41,7 +41,7 @@ const httpServer = http.createServer(app);
 app.use(cors());
 
 app.use(express.json());
-
+app.use(cookieParser());
 
 // ========================================
 // DATABASE
