@@ -18,6 +18,7 @@ export const createPost = asyncHandler(
   }
 );
 
+
 export const getUserPosts = asyncHandler(
   async (req, res) => {
     const posts =

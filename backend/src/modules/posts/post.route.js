@@ -10,6 +10,11 @@ import {protect} from "../../middleware/auth.middleware.js";
 
 import upload from "../../middleware/upload.middleware.js";
 
+import validate from "../../middleware/validate.middleware.js";
+
+
+import { postIdParamsSchema , commentIdParamsSchema , LikeParamsSchema , ConversationParamsSchema} from "../../validators/params.validator.js";
+
 const router = express.Router();
 
 router.post(
@@ -28,6 +33,7 @@ router.get(
 
 router.delete(
   "/:postId",
+  validate(postIdParamsSchema, "params"),
   protect,
   deletePost
 );
@@ -35,6 +41,7 @@ router.delete(
 
 router.post(
   "/:postId/like",
+  validate(postIdParamsSchema, "params"),
   protect,
   likePost
 );
@@ -42,18 +49,21 @@ router.post(
 
 router.post(
   "/:postId/comments",
+  validate(postIdParamsSchema, "params"),
   protect,
   createComment
 );
 
 router.get(
   "/:postId/comments",
+  validate(postIdParamsSchema, "params"),
   protect,
   getComments
 );
 
 router.delete(
   "/comments/:commentId",
+  validate(commentIdParamsSchema, "params"),
   protect,
   deleteComment
 );

@@ -1,8 +1,6 @@
 import Notification from "./notification.model.js";
 import AppError from "../../errors/AppError.js";
 
-
-// ========================================
 // CREATE NOTIFICATION
 // ========================================
 
