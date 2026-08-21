@@ -1,24 +1,38 @@
 import Follow from "../follows/follow.model.js";
 import Post from "../posts/post.model.js";
-import AppError from "../../errors/AppError.js";
+
 import { toPostDTO } from "../posts/post.dto.js";
 
+
+// ========================================
+// GET FEED
+// ========================================
 
 export const getFeedService = async (
   userId,
   cursor,
-  limit = 10
+  limit = 20
 ) => {
-  const follows = await Follow.find({
-    follower: userId,
-  }).select("following");
 
-  const followingIds = follows.map(
-    (follow) => follow.following
-  );
+  // ======================================
+  // GET FOLLOWING USERS
+  // ======================================
 
-  // Protect the API from huge requests
-  limit = Math.min(Number(limit) || 10, 50);
+  const follows =
+    await Follow.find({
+      follower: userId,
+    }).select("following");
+
+
+  const followingIds =
+    follows.map(
+      (follow) => follow.following
+    );
+
+
+  // ======================================
+  // BUILD POST QUERY
+  // ======================================
 
   const query = {
     author: {
@@ -26,49 +40,81 @@ export const getFeedService = async (
     },
   };
 
-  // If cursor exists, get older posts
-  if (cursor) {
-    const cursorDate = new Date(cursor);
 
-  if (Number.isNaN(cursorDate.getTime())) {
-    throw new AppError(
-      "Invalid feed cursor",
-      400
-    );
-  }
+  // ======================================
+  // CURSOR PAGINATION
+  // ======================================
+
+  if (cursor) {
 
     query.createdAt = {
       $lt: new Date(cursor),
     };
+
   }
 
-  const posts = await Post.find(query)
-    .populate(
-      "author",
-      "username displayName profileImage"
-    )
-    .sort({
-      createdAt: -1,
-    })
-    .limit(limit + 1);
 
-  const hasMore = posts.length > limit;
+  // ======================================
+  // GET POSTS
+  // ======================================
 
-  const postsToReturn = hasMore
-    ? posts.slice(0, limit)
-    : posts;
+  const posts =
+    await Post.find(query)
+      .populate(
+        "author",
+        "username displayName profileImage"
+      )
+      .sort({
+        createdAt: -1,
+      })
+      .limit(limit + 1);
 
-  const nextCursor = hasMore
-    ? postsToReturn[
-        postsToReturn.length - 1
-      ].createdAt
-    : null;
+
+  // ======================================
+  // CHECK MORE POSTS
+  // ======================================
+
+  const hasMore =
+    posts.length > limit;
+
+
+  const postsToReturn =
+    hasMore
+      ? posts.slice(0, limit)
+      : posts;
+
+
+  // ======================================
+  // NEXT CURSOR
+  // ======================================
+
+  const nextCursor =
+    hasMore
+      ? postsToReturn[
+          postsToReturn.length - 1
+        ].createdAt
+      : null;
+
+
+  // ======================================
+  // RESPONSE
+  // ======================================
 
   return {
-    posts: postsToReturn.map(toPostDTO),
+
+    posts:
+      postsToReturn.map(
+        toPostDTO
+      ),
+
     pagination: {
+
       nextCursor,
+
       hasMore,
+
     },
+
   };
+
 };

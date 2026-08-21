@@ -23,18 +23,6 @@ export const register = asyncHandler(
     } = req.body;
 
 
-    if (
-      !username ||
-      !email ||
-      !password
-    ) {
-      throw new AppError(
-        "All fields are required",
-        400
-      );
-    }
-
-
     const user =
       await registerUser({
         username,
@@ -66,16 +54,6 @@ export const login = asyncHandler(
       password,
     } = req.body;
 
-
-    if (
-      !identifier ||
-      !password
-    ) {
-      throw new AppError(
-        "Identifier and password are required",
-        400
-      );
-    }
 
 
     const result =

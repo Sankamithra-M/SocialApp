@@ -8,6 +8,12 @@ import {
 
 import {protect} from "../../middleware/auth.middleware.js";
 
+
+import { NotificationParamsSchema } from "../../validators/params.validator.js";
+import validate from "../../middleware/validate.middleware.js"; 
+// =============================
+
+
 const router = express.Router();
 
 router.get(
@@ -24,6 +30,7 @@ router.patch(
 
 router.patch(
   "/:notificationId/read",
+  validate(NotificationParamsSchema, "params"),
   protect,
   markNotificationAsRead
 );
