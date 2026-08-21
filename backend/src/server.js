@@ -3,7 +3,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import http from "http";
-
+import helmet from "helmet";
 import { connectDB } from "./db.js";
 
 import errorHandler from "./middleware/error.middleware.js";
@@ -16,7 +16,9 @@ import notificationRoutes from "./modules/notification/notification.route.js";
 import chatRoutes from "./modules/chat/chat.route.js";
 import cookieParser from "cookie-parser";
 import { initializeSocket } from "./socket/socket.js";
-
+import {
+  apiLimiter,
+} from "./middleware/rateLimit.middleware.js";
 
 // ========================================
 // EXPRESS APP
@@ -37,12 +39,15 @@ const httpServer = http.createServer(app);
 // ========================================
 // MIDDLEWARE
 // ========================================
-
-app.use(cors());
+app.use(helmet());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+    credentials: true,
+}));
 
 app.use(express.json());
+app.use(apiLimiter);
 app.use(cookieParser());
-
 // ========================================
 // DATABASE
 // ========================================
